@@ -1,5 +1,5 @@
 {
-  "name": "authenticated-router",
+  "name": "@hypercolor/authenticated-router",
   "version": "0.0.1",
   "description": "This is used by the Hypercolor Digital team for API route bearer authentication with Express.js",
   "engines": {
@@ -23,6 +23,7 @@
     "build": "tsc --build --clean && tsc --build"
   },
   "devDependencies": {
+    "@types/express": "^4.17.16",
     "@types/node": "^18.11.18",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
