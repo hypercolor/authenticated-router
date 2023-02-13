@@ -11,7 +11,7 @@
     - [Organization Repository](#organization-repository)
 
 ## Motivation
-This tool helps Express developers apply middleware chains consistently across sets of APIs.  Using Express's standard pattern for adding middleware means you will need to manually copy and paste the set of middleware for each mounted route.  `AuthenticatedRouter` lets you build groups of routes that all have the same upstream middleware applied. 
+This tool helps Express developers apply middleware chains consistently across sets of APIs.  Using Express Router's standard pattern for adding middleware means you will need to manually copy and paste the set of middleware for each mounted route.  `AuthenticatedRouter` lets you build groups of routes that all have the same upstream middleware applied. 
 
 ## Installation
 - NPM

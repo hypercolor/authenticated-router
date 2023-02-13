@@ -1,5 +1,5 @@
 import {IRoute, RequestHandler, Router} from 'express';
-import {IAuthenticatedRouterOptions, IControllerType, IMountedRoute} from './Interfaces';
+import {IAuthenticatedRouterOptions} from './Interfaces';
 
 export class AuthenticatedRouter {
   public router: Router = Router();
@@ -9,14 +9,8 @@ export class AuthenticatedRouter {
     this.options = options || {};
   }
 
-  public get routes(): Array<IMountedRoute> {
-    return this.authenticatedRoutes.map(authenticatedRoute => {
-      return {
-        path: authenticatedRoute.routePrefix,
-        verb: authenticatedRoute.verb,
-        controller: authenticatedRoute.controller
-      };
-    });
+  public get routes(): Array<AuthenticatedRoute> {
+    return this.authenticatedRoutes;
   }
 
   public static build(options: IAuthenticatedRouterOptions, builder: (router: AuthenticatedRouter) => void) {
@@ -34,12 +28,12 @@ export class AuthenticatedRouter {
 
 export class AuthenticatedRoute {
   public verb = 'unknown';
-  public controller?: IControllerType;
+  public handler?: RequestHandler;
   private route: IRoute;
   private myMiddleware: Array<RequestHandler> = [];
 
-  constructor(public routePrefix: string, router: Router, private opts: IAuthenticatedRouterOptions) {
-    this.route = router.route(routePrefix);
+  constructor(public path: string, router: Router, private opts: IAuthenticatedRouterOptions) {
+    this.route = router.route(path);
   }
 
   public use(middleware: RequestHandler) {
@@ -47,51 +41,42 @@ export class AuthenticatedRoute {
     return this;
   }
 
-  public get(controller: IControllerType | RequestHandler) {
+  public get(controller: RequestHandler) {
     return this.handleMethod('get', controller);
   }
 
-  public post(controller: IControllerType | RequestHandler) {
+  public post(controller: RequestHandler) {
     return this.handleMethod('post', controller);
   }
 
-  public put(controller: IControllerType | RequestHandler) {
+  public put(controller: RequestHandler) {
     return this.handleMethod('put', controller);
   }
 
-  public patch(controller: IControllerType | RequestHandler) {
+  public patch(controller: RequestHandler) {
     return this.handleMethod('patch', controller);
   }
 
-  public delete(controller: IControllerType | RequestHandler) {
+  public delete(controller: RequestHandler) {
     return this.handleMethod('delete', controller);
   }
 
-  public all(controller: IControllerType | RequestHandler) {
+  public all(controller: RequestHandler) {
     return this.handleMethod('all', controller);
   }
 
-  public options(controller: IControllerType | RequestHandler) {
+  public options(controller: RequestHandler) {
     return this.handleMethod('options', controller);
   }
 
-  public head(controller: IControllerType | RequestHandler) {
+  public head(controller: RequestHandler) {
     return this.handleMethod('head', controller);
   }
 
-  private handleMethod(name: string, handler: IControllerType | RequestHandler) {
-
-    this.controller = handler as IControllerType;
-
-    this.verb = name;
-
-    if (this.opts.controllerBuilder) {
-      // handler MUST be a Controller type
-      handler = this.opts.controllerBuilder(handler as IControllerType);
-    }
-    // handler = this.opts.controllerGenerator ? this.opts.controllerGenerator(handler) : handler
-    (this.route as any)[name](...this.buildMiddlewareArray(), handler);
-
+  private handleMethod(verb: string, handler: RequestHandler) {
+    this.handler = handler;
+    this.verb = verb;
+    (this.route as any)[verb](...this.buildMiddlewareArray(), handler);
     return this;
   }
 
