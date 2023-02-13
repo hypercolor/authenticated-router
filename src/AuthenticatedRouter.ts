@@ -3,14 +3,10 @@ import {IAuthenticatedRouterOptions} from './Interfaces';
 
 export class AuthenticatedRouter {
   public router: Router = Router();
-  private authenticatedRoutes: Array<AuthenticatedRoute> = [];
+  public routeGroups: Array<RouteGroup> = [];
 
   constructor(private readonly options?: IAuthenticatedRouterOptions) {
     this.options = options || {};
-  }
-
-  public get routes(): Array<AuthenticatedRoute> {
-    return this.authenticatedRoutes;
   }
 
   public static build(options: IAuthenticatedRouterOptions, builder: (router: AuthenticatedRouter) => void) {
@@ -20,13 +16,13 @@ export class AuthenticatedRouter {
   }
 
   public route(route: string) {
-    const authenticatedRoute = new AuthenticatedRoute(route, this.router, this.options!);
-    this.authenticatedRoutes.push(authenticatedRoute);
-    return authenticatedRoute;
+    const routeGroup = new RouteGroup(route, this.router, this.options!);
+    this.routeGroups.push(routeGroup);
+    return routeGroup;
   }
 }
 
-export class AuthenticatedRoute {
+export class RouteGroup {
   public verb = 'unknown';
   public handler?: RequestHandler;
   private route: IRoute;

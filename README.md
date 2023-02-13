@@ -19,21 +19,46 @@ This tool helps Express developers apply middleware chains consistently across s
 - Yarn
   - `yarn add @hypercolor/authenticated-router`
 
-## Examples
-API Routes File
+## Example
 ```typescript
 import {AuthenticatedRoute, AuthenticatedRouter} from './AuthenticatedRouter';
 
 const router = AuthenticatedRouter.build({
   middleware: []
-},  router => {
-  router.route('/home').get(buildHandler(GetWelcomeScreenController));
-  router.route('/post').post(buildHandler(CreatePostController));
-  router.route('/post/:post_id/update').put(buildHandler(UpdatePostController));
+}, routeGroup => {
+  routeGroup.route('/home').get(buildHandler(GetWelcomeScreenController));
+  routeGroup.route('/post').post(buildHandler(CreatePostController));
+  routeGroup.route('/post/:post_id/update').put(buildHandler(UpdatePostController));
 })
 
 expressApp.use('/mount', router.router)
 ```
+
+## AuthenticatedRouter API
+* `build(options, builder)`
+
+Creates a block of routes that will have all the same middleware applied.  Middleware array is passed in as `options.middleware`.
+
+Routes are specified in the `builder` callback.  The closure is invoked with an `RouteGroup` parameter. 
+
+## RouteGroup API
+
+The RouteGroup contains wrappers for Express Router's verbs.  Pass in an Express RequestHandler to create the mount.
+
+### Express Router Wrappers
+#### get(controller: RequestHandler): this;
+#### post(controller: RequestHandler): this;
+#### put(controller: RequestHandler): this;
+#### patch(controller: RequestHandler): this;
+#### delete(controller: RequestHandler): this;
+#### all(controller: RequestHandler): this;
+#### options(controller: RequestHandler): this;
+#### head(controller: RequestHandler): this;
+
+### use(middleware: RequestHandler): this;
+
+Add a new middleware.  Will only be applied to routes added after this is called.
+
 
 
 #### [Project Repository](https://github.com/hypercolor/swagger-generator)
