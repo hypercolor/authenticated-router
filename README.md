@@ -1,9 +1,8 @@
-# Hypercolor Swagger Generator
+# @hypercolor/authenticated-router
 
 ## Table of Contents
-- [Introduction](#introduction)
+- [Motivation](#motivation)
 - [Installation](#installation)
-- [Usage](#usage)
 - [Examples](#Examples)
 - [License](LICENSE)
 - [More Information](#more-information)
@@ -11,8 +10,8 @@
     - [Project Repository](#project-repository)
     - [Organization Repository](#organization-repository)
 
-## Introduction
-This is a bearer authentication router class to be used as an API route mounting tool 
+## Motivation
+This tool helps Express developers apply middleware chains consistently across sets of APIs.  Using Express Router's standard pattern for adding middleware means you will need to manually copy and paste the set of middleware for each mounted route.  `AuthenticatedRouter` lets you build groups of routes that all have the same upstream middleware applied. 
 
 ## Installation
 - NPM
@@ -20,63 +19,47 @@ This is a bearer authentication router class to be used as an API route mounting
 - Yarn
   - `yarn add @hypercolor/authenticated-router`
 
-## Usage
-In you API mounting file, import the package and initialize the router. See examples for details.
-
-## Examples
-API Routes File
+## Example
 ```typescript
-import * as e from 'express'
 import {AuthenticatedRoute, AuthenticatedRouter} from './AuthenticatedRouter';
 
-export class V1ApiRoutes {
-  public static buildAndMountRoutes(expressApp: e.Application, mountPoint: string) {
-    const routers: Array<AuthenticatedRoute> = [
-      AuthenticatedRouter.build({
-        controllerBuilder: '',
-        middleware: []
-      },  router => {
-        router.route('/home').get(GetWelcomeScreenController);
-        router.route('/post').post(CreatePostController);
-        router.route('/post/:posto_id/update').put(UpdatePostController);
-      })
+const router = AuthenticatedRouter.build({
+  middleware: []
+}, routeGroup => {
+  routeGroup.route('/home').get(buildHandler(GetWelcomeScreenController));
+  routeGroup.route('/post').post(buildHandler(CreatePostController));
+  routeGroup.route('/post/:post_id/update').put(buildHandler(UpdatePostController));
+})
 
-    ];
-
-    routers.forEach((router: AuthenticatedRouter) => {
-      expressApp.use(mountPoint, router.router);
-    });
-
-    return routers;
-  }
-}
-```
-Aggregated versioned API Routes file
-```typescript
-import * as e from 'express'
-export class Routes {
-  public static register(app: e.Application) {
-    V1ApiRoutes.buildAndMountRoutes(app, '/api/v1');
-  }
-}
+expressApp.use('/mount', router.router)
 ```
 
-With those files in place, add this line of code to your server initialization file:
+## AuthenticatedRouter API
+* `build(options, builder)`
 
-```typescript
-export class Server {
-  constructor() {
-    Routes.register(this.app);
-  }
-}
-```
+Creates a block of routes that will have all the same middleware applied.  Middleware array is passed in as `options.middleware`.
+
+Routes are specified in the `builder` callback.  The closure is invoked with an `RouteGroup` parameter. 
+
+## RouteGroup API
+
+The RouteGroup contains wrappers for Express Router's verbs.  Pass in an Express RequestHandler to create the mount.
+
+### Express Router Wrappers
+#### get(controller: RequestHandler): this;
+#### post(controller: RequestHandler): this;
+#### put(controller: RequestHandler): this;
+#### patch(controller: RequestHandler): this;
+#### delete(controller: RequestHandler): this;
+#### all(controller: RequestHandler): this;
+#### options(controller: RequestHandler): this;
+#### head(controller: RequestHandler): this;
+
+### use(middleware: RequestHandler): this;
+
+Add a new middleware.  Will only be applied to routes added after this is called.
 
 
-## More Information
-#### Toolchain
-- Node.js
-- TypeScript
-- Express.js
 
 #### [Project Repository](https://github.com/hypercolor/swagger-generator)
 
